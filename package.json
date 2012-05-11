@@ -1,0 +1,11 @@
+{
+    "dependencies": {
+        "express": "2.5.x"
+    },
+    "engines": {
+        "node": "0.6.x",
+        "npm": "1.0.x"
+    },
+    "name": "hermes-jonah",
+    "version": "0.0.1"
+}
