@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Editor</title>
+  <style type="text/css" media="screen">
+    body {
+      margin: 0;
+      background-color: #09222B;
+      overflow: hidden;
+    }
+    #controls {
+      margin: 0;
+      padding: 0;
+      height: 26px;
+      list-style-type: none;
+      font-family: Arial, "MS Trebuchet", sans-serif;
+      font-variant: small-caps;
+    }
+    #controls li {
+      margin: 0 3px 3px 3px;
+      background-color: #002B36;
+      width: 64px;
+      height: 20px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    #controls li:hover {
+      background-color: #07343F;
+    }
+    #controls a {
+      text-decoration: none;
+      color: #d0edf7;
+    }
+    #editor {
+      margin: 0;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 70px;
+      right: 0;
+    }
+  </style>
+  <script src="jquery-1.72.min.js"></script>
+</head>
+<body>
+
+<ul id="controls">
+  <li id="btn_load" class="button"><a href="#">Load</a></li>
+  <li id="btn_load" class="button"><a href="#">Save</a></li>
+</ul>
+<pre id="editor">foo = (items) ->
+  alert item for item in items
+</pre>
+
+<script src="src/ace-uncompressed-noconflict.js" type="text/javascript" charset="utf-8"></script>
+<script>
+window.onload = function() {
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/solarized_dark");
+    editor.getSession().setMode("ace/mode/coffee");
+};
+</script>
+
+</body>
+</html>

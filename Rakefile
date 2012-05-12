@@ -7,7 +7,14 @@ rescue LoadError
 end
 
 # Actual useful parts of the rake file
-OUTPUT = 'app.js'
+
+# Set this to nil to compile everything as modules. Otherwise, the
+# filename specified here is where everything is munged into. For
+# example, 'app.js'
+MONOLITHIC_FILE = nil
+
+# The directory in which to output the files
+OUTPUT_DIR = 'node_app'
 
 def get_source_list
     files = Dir.glob('coffee/*/**/*.coffee')
@@ -16,15 +23,19 @@ def get_source_list
     files.flatten!
 end
 
-def generate_compile_fragment
-    $last_source_list = get_source_list
-    "-cj #{OUTPUT} #{$last_source_list.join(" ")}"
-end
-
 def file_lists_identical?(a, b)
     return false unless a.length == b.length
     a.each { |file| return false unless b.include? file }
     true
+end
+
+def compile(files, options = nil, exit_when_file_list_changes = false)
+    if files != nil and files.length > 0
+        opts = ""
+        opts = options.join ' ' unless options == nil
+
+        command_echoing_output "coffee #{opts} #{files.join(' ')}", exit_when_file_list_changes
+    end
 end
 
 def command_echoing_output(cmd, exit_when_file_list_changes = false)
@@ -32,7 +43,7 @@ def command_echoing_output(cmd, exit_when_file_list_changes = false)
     IO::popen(cmd) do |o|
         if exit_when_file_list_changes
             watch_for_new_files_thread = Thread.new do
-                while file_lists_identical? get_source_list, $last_source_list
+                while file_lists_identical? get_monolithic_source_list, $last_source_list
                     sleep 1
                 end
                 say "<%=color(''.center(76, ' '), WHITE, ON_BLUE)%>"
@@ -50,20 +61,38 @@ end
 
 desc "Deletes generated files"
 task :clean do
-    File.delete OUTPUT if File.exists? OUTPUT
+    say "<%=color('Deleting JavaScript files in ', WHITE)%><%=color('#{OUTPUT_DIR}', GREEN)%>"
+    files = Dir.glob File.join(OUTPUT_DIR, '**', '*.js')
+    files.each do
+        |f|
+        say "<%=color('Deleting #{f}', RED)%>"
+        File.delete f
+    end
 end
 
 desc "Generates builder JavaScript"
 task :default do
-    say "<%=color('Compiling coffee files to ', WHITE)%><%=color('#{OUTPUT}', GREEN)%>"
-    command_echoing_output "coffee #{generate_compile_fragment}"
+    files = get_source_list
+    if MONOLITHIC_FILE != nil
+        say "<%=color('Compiling coffee files to ', WHITE)%><%=color('#{File.join(OUTPUT_DIR, MONOLITHIC_FILE)}', GREEN)%>"
+        compile files, ["-o #{OUTPUT_DIR}", "-j #{MONOLITHIC_FILE}", '-c']
+    else
+        say "<%=color('Compiling coffee files to ', WHITE)%><%=color('#{OUTPUT_DIR}', GREEN)%>"
+        compile files, ["-o #{OUTPUT_DIR}", '-c']
+    end
 end
 
 desc "Watches the files and recompiles as necessary"
 task :watch do
     while true
         say "<%=color('Watching for changed files. Press CTRL-C to end.'.center(76, ' '), BLACK, ON_WHITE)%>"
-        say "<%=color('Compiling coffee files to ', WHITE)%><%=color('#{OUTPUT}', GREEN)%>"
-        command_echoing_output "coffee -w #{generate_compile_fragment}", true
+        files = get_source_list
+        if MONOLITHIC_FILE != nil
+            say "<%=color('Compiling coffee files to ', WHITE)%><%=color('#{File.join(OUTPUT_DIR, MONOLITHIC_FILE)}', GREEN)%>"
+            compile files, ["-o #{OUTPUT_DIR}", "-j #{MONOLITHIC_FILE}", '-w', '-c']
+        else
+            say "<%=color('Compiling coffee files to ', WHITE)%><%=color('#{OUTPUT_DIR}', GREEN)%>"
+            compile files, ["-o #{OUTPUT_DIR}", '-w', '-c']
+        end
     end
 end
