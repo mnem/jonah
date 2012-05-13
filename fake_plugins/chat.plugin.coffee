@@ -1,7 +1,7 @@
 World = require('./world').Plugin
 class Chat
 
-    description: "Chat"
+    description: "Chat2"
 
     commands: =>
         say: @say

@@ -17,18 +17,21 @@ class exports.Fapi
   current_url: (req) ->
     url.resolve "#{@protocol}#{req.header('host')}", req.url
 
-  prepare_target: (req, res, file_path, on_prepared) ->
+  prepare_target: (req, res, file_path, ensure_exists, on_prepared) ->
     web_target = "#{@protocol}#{req.header('host')}#{req.url}"
     target = @resolve file_path
     if target.indexOf(@file_root) == 0
-      node_path.exists target, (exists) =>
-        if exists
-          on_prepared req, res, target
-        else
-          res.json
-            current: web_target
-            message: "#{web_target} does not exist. Crazy.",
-            404
+      if ensure_exists
+        node_path.exists target, (exists) =>
+          if exists
+            on_prepared req, res, target
+          else
+            res.json
+              current: web_target
+              message: "#{web_target} does not exist. Crazy.",
+              404
+      else
+        on_prepared req, res, target
     else
       res.json
         current: web_target
@@ -55,7 +58,7 @@ class exports.Fapi
 
   get: (req, res, web_path) ->
     # console.log req
-    @prepare_target req, res, web_path, (req, res, file_path) =>
+    @prepare_target req, res, web_path, true, (req, res, file_path) =>
       node_fs.stat file_path, (err, stats) =>
         if err
           res.json
@@ -71,4 +74,33 @@ class exports.Fapi
             res.json
               current: @current_url req
               message: "Not really sure what to do with #{@current_url req} so you aren't getting it",
+              403
+
+  post_file: (req, res, file_path) ->
+    node_fs.writeFile file_path, req.body.data, (err) =>
+      if err
+        res.json
+          current: @current_url req
+          message: err.message,
+          500
+      else
+        res.json
+          current: @current_url req
+          message: "Wrote file #{@current_url req}",
+          200
+
+  post: (req, res, web_path) ->
+    # console.log req
+    @prepare_target req, res, web_path, false, (req, res, file_path) =>
+      node_fs.stat file_path, (err, stats) =>
+        if err
+          # Maybe creating a new file, so give it a shot
+          @post_file req, res, file_path
+        else
+          if stats.isFile()
+            @post_file req, res, file_path
+          else
+            res.json
+              current: @current_url req
+              message: "Not really sure what to do with #{@current_url req} so you aren't POSTing it",
               403

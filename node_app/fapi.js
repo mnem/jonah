@@ -28,22 +28,26 @@
       return url.resolve("" + this.protocol + (req.header('host')), req.url);
     };
 
-    Fapi.prototype.prepare_target = function(req, res, file_path, on_prepared) {
+    Fapi.prototype.prepare_target = function(req, res, file_path, ensure_exists, on_prepared) {
       var target, web_target,
         _this = this;
       web_target = "" + this.protocol + (req.header('host')) + req.url;
       target = this.resolve(file_path);
       if (target.indexOf(this.file_root) === 0) {
-        return node_path.exists(target, function(exists) {
-          if (exists) {
-            return on_prepared(req, res, target);
-          } else {
-            return res.json({
-              current: web_target,
-              message: "" + web_target + " does not exist. Crazy."
-            }, 404);
-          }
-        });
+        if (ensure_exists) {
+          return node_path.exists(target, function(exists) {
+            if (exists) {
+              return on_prepared(req, res, target);
+            } else {
+              return res.json({
+                current: web_target,
+                message: "" + web_target + " does not exist. Crazy."
+              }, 404);
+            }
+          });
+        } else {
+          return on_prepared(req, res, target);
+        }
       } else {
         return res.json({
           current: web_target,
@@ -80,7 +84,7 @@
 
     Fapi.prototype.get = function(req, res, web_path) {
       var _this = this;
-      return this.prepare_target(req, res, web_path, function(req, res, file_path) {
+      return this.prepare_target(req, res, web_path, true, function(req, res, file_path) {
         return node_fs.stat(file_path, function(err, stats) {
           if (err) {
             return res.json({
@@ -96,6 +100,43 @@
               return res.json({
                 current: _this.current_url(req),
                 message: "Not really sure what to do with " + (_this.current_url(req)) + " so you aren't getting it"
+              }, 403);
+            }
+          }
+        });
+      });
+    };
+
+    Fapi.prototype.post_file = function(req, res, file_path) {
+      var _this = this;
+      return node_fs.writeFile(file_path, req.body.data, function(err) {
+        if (err) {
+          return res.json({
+            current: _this.current_url(req),
+            message: err.message
+          }, 500);
+        } else {
+          return res.json({
+            current: _this.current_url(req),
+            message: "Wrote file " + (_this.current_url(req))
+          }, 200);
+        }
+      });
+    };
+
+    Fapi.prototype.post = function(req, res, web_path) {
+      var _this = this;
+      return this.prepare_target(req, res, web_path, false, function(req, res, file_path) {
+        return node_fs.stat(file_path, function(err, stats) {
+          if (err) {
+            return _this.post_file(req, res, file_path);
+          } else {
+            if (stats.isFile()) {
+              return _this.post_file(req, res, file_path);
+            } else {
+              return res.json({
+                current: _this.current_url(req),
+                message: "Not really sure what to do with " + (_this.current_url(req)) + " so you aren't POSTing it"
               }, 403);
             }
           }

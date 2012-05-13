@@ -7,7 +7,7 @@
 
   app = express.createServer(express.logger());
 
-  app.use(app.router);
+  app.use(express.bodyParser());
 
   app.use(express.static("" + __dirname + "/../public"));
 
@@ -15,6 +15,10 @@
 
   app.get(/^\/fapi\/(.*)/, function(req, res) {
     return new fapi.Fapi(FAPI_FILES_ROOT).get(req, res, req.params[0]);
+  });
+
+  app.post(/^\/fapi\/(.*)/, function(req, res) {
+    return new fapi.Fapi(FAPI_FILES_ROOT).post(req, res, req.params[0]);
   });
 
   app.get('/', function(req, res) {

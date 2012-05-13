@@ -2,13 +2,16 @@ express = require 'express'
 fapi = new require('./fapi')
 
 app = express.createServer(express.logger())
-app.use app.router
+app.use express.bodyParser()
 app.use express.static("#{__dirname}/../public")
 
 FAPI_FILES_ROOT = 'fake_plugins'
 
 app.get /^\/fapi\/(.*)/, (req, res) ->
   new fapi.Fapi(FAPI_FILES_ROOT).get req, res, req.params[0]
+
+app.post /^\/fapi\/(.*)/, (req, res) ->
+  new fapi.Fapi(FAPI_FILES_ROOT).post req, res, req.params[0]
 
 app.get '/', (req, res) ->
   res.redirect '/editor.html'
