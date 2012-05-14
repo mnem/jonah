@@ -7,3 +7,22 @@
 #file-buttons {
   float: left;
 }
+
+#file-buttons * {
+  float: left;
+}
+
+#label-active-file-location {
+  float: left;
+  display: none;
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+#new-file-dialog {
+  display: none;
+}
+
+#alert-invalid-plugin-name {
+  display: none;
+}

@@ -104,8 +104,9 @@
       file = files.pop();
       return node_fs.stat(node_path.join(root, file), function(err, stats) {
         if (!err) {
+          console.log("dir_url: " + dir_url + ", file: " + file);
           files_desc[file] = {
-            link: node_path.join(dir_url, file),
+            link: "" + dir_url + file,
             directory: stats.isDirectory()
           };
         }
@@ -121,6 +122,9 @@
           return _this.error(req, res, 500, 'Can\'t read.');
         } else {
           dir_url = _this.current_url(req);
+          if (dir_url.length > 1 && dir_url[dir_url.length - 1] !== '/') {
+            dir_url = dir_url + '/';
+          }
           parsed_url = url.parse(dir_url);
           parsed_url.pathname = node_path.resolve(parsed_url.pathname, '..');
           up_url = url.format(parsed_url);

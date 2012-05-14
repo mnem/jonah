@@ -71,8 +71,9 @@ class exports.Fapi
     file = files.pop()
     node_fs.stat node_path.join(root, file), (err, stats) =>
       if not err
+        console.log "dir_url: #{dir_url}, file: #{file}"
         files_desc[file] =
-          link: node_path.join dir_url, file
+          link: "#{dir_url}#{file}"
           directory: stats.isDirectory()
       @_r_get_directory root, files, files_desc, dir_url, complete
 
@@ -82,6 +83,8 @@ class exports.Fapi
         @error req, res, 500, 'Can\'t read.'
       else
         dir_url = @current_url req
+        if dir_url.length > 1 and dir_url[dir_url.length - 1] != '/'
+          dir_url = dir_url + '/'
         parsed_url = url.parse dir_url
         parsed_url.pathname = node_path.resolve parsed_url.pathname, '..'
         # This will allow you to change to a directory url above the

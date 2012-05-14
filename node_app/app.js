@@ -3,7 +3,7 @@
 
   express = require('express');
 
-  fapi = new require('./fapi');
+  fapi = new require(process.env.FAPI_ROOT || './fapi');
 
   app = express.createServer(express.logger());
 

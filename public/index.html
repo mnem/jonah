@@ -36,9 +36,15 @@
       <div class="navbar-inner">
         <div class="container">
           <div id="file-buttons">
-            <a id="action-save" class="btn" href="#">Save</a>
-            <a id="action-revert" class="btn btn-danger" href="#">Revert</a>
+            <div class="btn-group">
+              <a id="action-save" class="btn disabled" href="#">Save</a>
+              <a id="action-new" class="btn" data-toggle="modal" href="#new-file-dialog" href="#">New</a>
+            </div>
+            <div class="btn-group">
+              <a id="action-revert" class="btn btn-danger disabled" href="#">Revert</a>
+            </div>
           </div>
+          <p id="label-active-file-location" class="navbar-text label label-inverse">Editing <a id="active-file-location" href="#"></a></p>
           <p class="navbar-text pull-right">Hermes DO IT LIVE!</p>
         </div>
       </div>
@@ -61,11 +67,32 @@
       </div>
     </div> <!-- /container -->
 
+    <!-- New file modal -->
+    <div class="modal fade" id="new-file-dialog">
+      <div class="modal-header">
+        <button class="close" data-dismiss="modal">×</button>
+        <h3>New plugin</h3>
+      </div>
+      <div class="modal-body">
+        <input id="new-plugin-name" type="text" class="span3" placeholder="plugin name">.plugin.coffee
+        <div id='alert-invalid-plugin-name' class="alert alert-error">
+          <strong>Invalid name!</strong> Letters, numbers, dashes and underscores only please. No spaces, periods or other fancy shizz.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+        <a id="create-new-plugin" href="#" class="btn btn-primary">Create</a>
+      </div>
+    </div>
+    <!-- End new file modal -->
+
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="js/jquery-1.7.2.min.js"></script>
+    <script src="js/mustache.min.js"></script>
     <script src="js/ace/ace-uncompressed-noconflict.js"></script>
+    <script src="js/plugin.template.js"></script>
     <script src="js/editor.js"></script>
     <script src="js/bootstrap-transition.js"></script>
     <script src="js/bootstrap-alert.js"></script>
