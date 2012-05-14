@@ -1,4 +1,3 @@
-# I edited this
 World = require('./world').Plugin
 class Chat
 

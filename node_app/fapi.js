@@ -105,7 +105,7 @@
       return node_fs.stat(node_path.join(root, file), function(err, stats) {
         if (!err) {
           files_desc[file] = {
-            link: url.resolve(dir_url, file),
+            link: node_path.join(dir_url, file),
             directory: stats.isDirectory()
           };
         }

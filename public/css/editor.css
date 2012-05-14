@@ -1,0 +1,9 @@
+#editor {
+  width: 70%;
+  height: 90%;
+  position: fixed;
+}
+
+#file-buttons {
+  float: left;
+}

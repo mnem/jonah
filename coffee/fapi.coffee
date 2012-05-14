@@ -72,7 +72,7 @@ class exports.Fapi
     node_fs.stat node_path.join(root, file), (err, stats) =>
       if not err
         files_desc[file] =
-          link: url.resolve dir_url, file
+          link: node_path.join dir_url, file
           directory: stats.isDirectory()
       @_r_get_directory root, files, files_desc, dir_url, complete
 
