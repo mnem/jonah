@@ -3,7 +3,7 @@ node_fs = require 'fs'
 url = require 'url'
 
 class exports.Fapi
-  constructor: (file_root, is_secure = false) ->
+  constructor: (file_root, is_secure = false, @show_hidden = false) ->
     if is_secure
       @protocol = 'https://'
     else
@@ -69,12 +69,15 @@ class exports.Fapi
   _r_get_directory: (root, files, files_desc, dir_url, complete) ->
     return complete() if files == null or files.length == 0
     file = files.pop()
-    node_fs.stat node_path.join(root, file), (err, stats) =>
-      if not err
-        console.log "dir_url: #{dir_url}, file: #{file}"
-        files_desc[file] =
-          link: "#{dir_url}#{file}"
-          directory: stats.isDirectory()
+    if @show_hidden or file[0] != '.'
+      node_fs.stat node_path.join(root, file), (err, stats) =>
+        if not err
+          console.log "dir_url: #{dir_url}, file: #{file}"
+          files_desc[file] =
+            link: "#{dir_url}#{file}"
+            directory: stats.isDirectory()
+        @_r_get_directory root, files, files_desc, dir_url, complete
+    else
       @_r_get_directory root, files, files_desc, dir_url, complete
 
   get_directory: (req, res, file_path) ->

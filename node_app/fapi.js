@@ -9,8 +9,9 @@
 
   exports.Fapi = (function() {
 
-    function Fapi(file_root, is_secure) {
+    function Fapi(file_root, is_secure, show_hidden) {
       if (is_secure == null) is_secure = false;
+      this.show_hidden = show_hidden != null ? show_hidden : false;
       if (is_secure) {
         this.protocol = 'https://';
       } else {
@@ -102,16 +103,20 @@
         _this = this;
       if (files === null || files.length === 0) return complete();
       file = files.pop();
-      return node_fs.stat(node_path.join(root, file), function(err, stats) {
-        if (!err) {
-          console.log("dir_url: " + dir_url + ", file: " + file);
-          files_desc[file] = {
-            link: "" + dir_url + file,
-            directory: stats.isDirectory()
-          };
-        }
-        return _this._r_get_directory(root, files, files_desc, dir_url, complete);
-      });
+      if (this.show_hidden || file[0] !== '.') {
+        return node_fs.stat(node_path.join(root, file), function(err, stats) {
+          if (!err) {
+            console.log("dir_url: " + dir_url + ", file: " + file);
+            files_desc[file] = {
+              link: "" + dir_url + file,
+              directory: stats.isDirectory()
+            };
+          }
+          return _this._r_get_directory(root, files, files_desc, dir_url, complete);
+        });
+      } else {
+        return this._r_get_directory(root, files, files_desc, dir_url, complete);
+      }
     };
 
     Fapi.prototype.get_directory = function(req, res, file_path) {
