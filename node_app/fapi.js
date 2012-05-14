@@ -116,12 +116,16 @@
     Fapi.prototype.get_directory = function(req, res, file_path) {
       var _this = this;
       return node_fs.readdir(file_path, function(err, files) {
-        var dir_url, file_list;
+        var dir_url, file_list, parsed_url, up_url;
         if (err) {
           return _this.error(req, res, 500, 'Can\'t read.');
         } else {
           dir_url = _this.current_url(req);
+          parsed_url = url.parse(dir_url);
+          parsed_url.pathname = node_path.resolve(parsed_url.pathname, '..');
+          up_url = url.format(parsed_url);
           file_list = {
+            up: up_url,
             ls: {}
           };
           return _this._r_get_directory(file_path, files, file_list.ls, dir_url, function() {

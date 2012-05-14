@@ -82,7 +82,14 @@ class exports.Fapi
         @error req, res, 500, 'Can\'t read.'
       else
         dir_url = @current_url req
+        parsed_url = url.parse dir_url
+        parsed_url.pathname = node_path.resolve parsed_url.pathname, '..'
+        # This will allow you to change to a directory url above the
+        # root. Because I'm not storing state, I'm not sure how to get
+        # around that just now.
+        up_url = url.format parsed_url
         file_list =
+          up: up_url
           ls: {}
 
         @_r_get_directory file_path, files, file_list.ls, dir_url, =>

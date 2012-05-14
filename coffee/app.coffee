@@ -13,8 +13,11 @@ app.get /^\/fapi\/(.*)/, (req, res) ->
 app.post /^\/fapi\/(.*)/, (req, res) ->
   new fapi.Fapi(FAPI_FILES_ROOT).post req, res, req.params[0]
 
+app.get '/fapi', (req, res) ->
+  res.redirect '/fapi/'
+
 app.get '/', (req, res) ->
-  res.redirect '/editor.html'
+  res.redirect '/index.html'
 
 # Startup the server
 port = process.env.PORT || 3000

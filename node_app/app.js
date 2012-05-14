@@ -21,8 +21,12 @@
     return new fapi.Fapi(FAPI_FILES_ROOT).post(req, res, req.params[0]);
   });
 
+  app.get('/fapi', function(req, res) {
+    return res.redirect('/fapi/');
+  });
+
   app.get('/', function(req, res) {
-    return res.redirect('/editor.html');
+    return res.redirect('/index.html');
   });
 
   port = process.env.PORT || 3000;
